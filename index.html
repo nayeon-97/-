@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘 저녁 뭐 먹지?</title>
+    <style>
+        /* 전체 페이지 스타일 */
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        /* 메인 컨테이너 스타일 */
+        .container {
+            background-color: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        p {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        /* 추천 결과가 나오는 박스 */
+        #result-box {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            min-height: 40px;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            background-color: #fdfefe;
+        }
+
+        /* 버튼 스타일 */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>오늘 저녁 뭐 먹지? 🤔</h1>
+        <p>결정하기 힘들 땐 버튼을 눌러보세요!</p>
+        
+        <div id="result-box">?</div>
+        
+        <button onclick="recommendMenu()">메뉴 추천받기</button>
+    </div>
+
+    <script>
+        // 저녁 메뉴 리스트 (원하는 메뉴를 자유롭게 추가/수정하세요)
+        const menuList = [
+            "삼겹살 🥩",
+            "치킨과 맥주 🍗🍻",
+            "따뜻한 국밥 🍚",
+            "매콤한 떡볶이 🌶️",
+            "초밥 🍣",
+            "마라탕 🍲",
+            "피자 🍕",
+            "짜장면과 탕수육 🍜",
+            "김치찌개 🍲",
+            "파스타 🍝",
+            "햄버거 🍔",
+            "족발/보쌈 🍖",
+            "샐러드 (다이어트!) 🥗"
+        ];
+
+        // 메뉴 추천 함수
+        function recommendMenu() {
+            const resultBox = document.getElementById('result-box');
+            
+            // 효과를 위해 잠시 '고민 중...' 텍스트 표시
+            resultBox.style.color = "#7f8c8d";
+            resultBox.innerText = "메뉴 고르는 중...";
+            
+            // 0.5초 뒤에 결과 보여주기
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * menuList.length);
+                const selectedMenu = menuList[randomIndex];
+                
+                resultBox.style.color = "#e74c3c";
+                resultBox.innerText = selectedMenu;
+            }, 500); // 500ms(0.5초) 지연
+        }
+    </script>
+
+</body>
+</html>
