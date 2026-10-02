@@ -3,126 +3,857 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘 저녁 뭐 먹지?</title>
+    <title>미카게 신사 - 토모에의 사주 & 고민 상담소</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* 전체 페이지 스타일 */
-        body {
-            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: #333;
+        :root {
+            --bg-color: #0b0813;
+            --card-bg: rgba(22, 17, 36, 0.75);
+            --card-border: rgba(187, 134, 252, 0.25);
+            --primary-glow: #a855f7;
+            --foxfire-blue: #00f0ff;
+            --foxfire-purple: #c084fc;
+            --sakura-pink: #f472b6;
+            --gold-accent: #fbbf24;
+            --text-main: #f3e8ff;
+            --text-sub: #c084fc;
+            --text-muted: #94a3b8;
         }
 
-        /* 메인 컨테이너 스타일 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Gowun Batang', 'Noto Serif KR', serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 50px;
+        }
+
+        /* background canvas */
+        #fxCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .container {
-            background-color: white;
-            padding: 40px 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        header {
             text-align: center;
-            width: 90%;
-            max-width: 400px;
+            padding: 30px 15px 20px;
+            margin-bottom: 25px;
+        }
+
+        .shrine-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(0,240,255,0.2));
+            border: 1px solid var(--card-border);
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: var(--gold-accent);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
         }
 
         h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #2c3e50;
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff, var(--foxfire-purple), var(--foxfire-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            text-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
         }
 
-        p {
-            font-size: 16px;
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-
-        /* 추천 결과가 나오는 박스 */
-        #result-box {
-            font-size: 28px;
-            font-weight: bold;
-            color: #e74c3c;
-            min-height: 40px;
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 2px dashed #bdc3c7;
-            border-radius: 10px;
-            background-color: #fdfefe;
-        }
-
-        /* 버튼 스타일 */
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
+        /* Tomoe Speech Box */
+        .tomoe-speech-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-left: 4px solid var(--foxfire-blue);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-top: 15px;
+            position: relative;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .tomoe-speech-box:hover {
+            border-color: var(--foxfire-blue);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .tomoe-name {
+            color: var(--foxfire-blue);
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tomoe-text {
+            color: #e2e8f0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .click-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 6px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 10px;
+            background: rgba(30, 27, 46, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(0, 240, 255, 0.2));
+            border-color: var(--foxfire-purple);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        /* Tab Content Section */
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-sub);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], input[type="date"], select, textarea {
             width: 100%;
+            padding: 12px 16px;
+            background: rgba(10, 7, 18, 0.7);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #2980b9;
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--foxfire-blue);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
-        button:active {
-            transform: scale(0.98);
+        .radio-group {
+            display: flex;
+            gap: 15px;
         }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #e2e8f0;
+        }
+
+        /* Buttons */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 240, 255, 0.5);
+        }
+
+        /* Result Cards */
+        .result-box {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            color: var(--gold-accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .pillar-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            padding: 10px 5px;
+        }
+
+        .pillar-head {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .pillar-body {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--foxfire-blue);
+        }
+
+        .five-elements {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .element-bar {
+            flex: 1;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .detail-card {
+            background: rgba(15, 11, 26, 0.6);
+            border-left: 3px solid var(--foxfire-purple);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            line-height: 1.7;
+            color: #e2e8f0;
+        }
+
+        .detail-card h4 {
+            color: var(--gold-accent);
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(168, 85, 247, 0.2);
+            border-top: 4px solid var(--foxfire-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Omikuji & Wish Ema */
+        .omikuji-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .omikuji-btn {
+            background: linear-gradient(135deg, #f43f5e, #a855f7);
+            border: none;
+            padding: 15px 35px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .omikuji-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.7);
+        }
+
+        .ema-list {
+            margin-top: 20px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .ema-item {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ema-text { color: #fef08a; font-size: 0.95rem; }
+        .ema-author { color: var(--text-muted); font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
+    <canvas id="fxCanvas"></canvas>
+
     <div class="container">
-        <h1>오늘 저녁 뭐 먹지? 🤔</h1>
-        <p>결정하기 힘들 땐 버튼을 눌러보세요!</p>
-        
-        <div id="result-box">?</div>
-        
-        <button onclick="recommendMenu()">메뉴 추천받기</button>
+        <header>
+            <div class="shrine-badge">⛩️ 미카게 신사 (神影神社)</div>
+            <h1>토모에의 사주 & 고민 상담소</h1>
+            
+            <div class="tomoe-speech-box" onclick="rotateTomoeSpeech()">
+                <div class="tomoe-name">🔥 들여우 사자 토모에</div>
+                <div class="tomoe-text" id="tomoeSpeech">
+                    "쯧, 또 신령 녀석 대신 내가 인간 상대나 하고 있어야 하나? 멀뚱히 서 있지 말고 용건이 있으면 말해."
+                </div>
+                <div class="click-hint">💬 터치하면 토모에의 한마디가 바뀐다.</div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('saju')">🔮 사주팔자 풀이</button>
+            <button class="tab-btn" onclick="switchTab('counsel')">💬 고민 상담소</button>
+            <button class="tab-btn" onclick="switchTab('omikuji')">⛩️ 오미쿠지 점괘</button>
+            <button class="tab-btn" onclick="switchTab('ema')">🎋 소원 나무판</button>
+        </div>
+
+        <!-- TAB 1: 사주팔자 풀이 -->
+        <div id="saju" class="tab-content active">
+            <form id="sajuForm" onsubmit="calculateSaju(event)">
+                <div class="form-group">
+                    <label>이름 (또는 별명)</label>
+                    <input type="text" id="sajuName" placeholder="예: 나나미" required>
+                </div>
+
+                <div class="form-group">
+                    <label>성별</label>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="gender" value="여성" checked> 여성</label>
+                        <label class="radio-label"><input type="radio" name="gender" value="남성"> 남성</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>생년월일 및 음양력</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="sajuBirth" required style="flex:2;">
+                        <select id="sajuCalendar" style="flex:1;">
+                            <option value="양력">양력</option>
+                            <option value="음력">음력</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>태어난 시 (시간)</label>
+                    <select id="sajuTime">
+                        <option value="unknown">태어난 시 모름 / 미상</option>
+                        <option value="0">자시 (23:30 ~ 01:29)</option>
+                        <option value="1">축시 (01:30 ~ 03:29)</option>
+                        <option value="2">인시 (03:30 ~ 05:29)</option>
+                        <option value="3">묘시 (05:30 ~ 07:29)</option>
+                        <option value="4">진시 (07:30 ~ 09:29)</option>
+                        <option value="5">사시 (09:30 ~ 11:29)</option>
+                        <option value="6">오시 (11:30 ~ 13:29)</option>
+                        <option value="7">미시 (13:30 ~ 15:29)</option>
+                        <option value="8">신시 (15:30 ~ 17:29)</option>
+                        <option value="9">유시 (17:30 ~ 19:29)</option>
+                        <option value="10">술시 (19:30 ~ 21:29)</option>
+                        <option value="11">해시 (21:30 ~ 23:29)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>가장 궁금한 분야</label>
+                    <select id="sajuTopic">
+                        <option value="전반적인 총운">전반적인 타고난 총운</option>
+                        <option value="연애운 및 인연">연애운 및 나의 인연</option>
+                        <option value="재물운 및 금전">재물운 및 금전의 기운</option>
+                        <option value="학업 및 학업/직업운">진로, 학업 및 직업운</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">🔥 토모에에게 사주 풀이받기</button>
+            </form>
+
+            <div id="sajuLoading" class="loading">
+                <div class="spinner"></div>
+                <p>토모에가 여우불을 밝혀 네 사주의 기운을 읽는 중이다...</p>
+            </div>
+
+            <div id="sajuResult" class="result-box">
+                <div class="result-title">🔮 <span id="resName"></span>의 사주 기운 명세표</div>
+                
+                <div class="pillars-grid" id="pillarsContainer">
+                    <!-- Dynamic Pillars Output -->
+                </div>
+
+                <div class="five-elements" id="fiveElementsContainer">
+                    <!-- Dynamic Five Elements Output -->
+                </div>
+
+                <div id="sajuDetailCards">
+                    <!-- Dynamic Detailed Analysis -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: 고민 상담소 -->
+        <div id="counsel" class="tab-content">
+            <form onsubmit="handleCounsel(event)">
+                <div class="form-group">
+                    <label>너의 이름이나 별칭</label>
+                    <input type="text" id="counselName" placeholder="예: 고민많은 인간" required>
+                </div>
+                <div class="form-group">
+                    <label>토모에에게 털어놓을 고민 내용</label>
+                    <textarea id="counselText" rows="5" placeholder="마음속에 있는 고민을 숨기지 말고 솔직하게 적어봐. 솔직해야 여우불 비방도 나오는 법이다." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">🦊 토모에의 솔루션 듣기</button>
+            </form>
+
+            <div id="counselLoading" class="loading">
+                <div class="spinner"></div>
+                <p>토모에가 네 고민을 들으며 여우 귓속말을 준비하고 있다...</p>
+            </div>
+
+            <div id="counselResult" class="result-box">
+                <div class="result-title">🔥 토모에의 츤데레 팩트폭격 & 여우불 처방</div>
+                <div id="counselOutput" class="detail-card"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: 오미쿠지 점괘 -->
+        <div id="omikuji" class="tab-content">
+            <div class="omikuji-box">
+                <p style="margin-bottom: 20px; color: var(--text-sub);">신사의 나무통을 흔들어 오늘의 운세를 확인해봐.</p>
+                <button class="omikuji-btn" onclick="drawOmikuji()">🔮 오미쿠지 뽑기</button>
+                
+                <div id="omikujiResult" class="result-box" style="text-align: left;">
+                    <!-- Dynamic Omikuji -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: 소원 나무판 (Ema) -->
+        <div id="ema" class="tab-content">
+            <form onsubmit="addEma(event)">
+                <div class="form-group">
+                    <label>소원 작성자</label>
+                    <input type="text" id="emaName" placeholder="너의 이름" required>
+                </div>
+                <div class="form-group">
+                    <label>신사 나무판에 걸 소원</label>
+                    <input type="text" id="emaText" placeholder="예: 이번 시험 합격하게 해주세요!" required>
+                </div>
+                <button type="submit" class="submit-btn">🎋 미카게 신사에 소원 걸기</button>
+            </form>
+
+            <div style="margin-top:25px;">
+                <h3 style="color:var(--gold-accent); font-size:1.1rem; margin-bottom:12px;">신사에 걸린 소원목들</h3>
+                <div id="emaList" class="ema-list"></div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 저녁 메뉴 리스트 (원하는 메뉴를 자유롭게 추가/수정하세요)
-        const menuList = [
-            "삼겹살 🥩",
-            "치킨과 맥주 🍗🍻",
-            "따뜻한 국밥 🍚",
-            "매콤한 떡볶이 🌶️",
-            "초밥 🍣",
-            "마라탕 🍲",
-            "피자 🍕",
-            "짜장면과 탕수육 🍜",
-            "김치찌개 🍲",
-            "파스타 🍝",
-            "햄버거 🍔",
-            "족발/보쌈 🍖",
-            "샐러드 (다이어트!) 🥗"
+        // --- 1. Tomoe Speeches ---
+        const tomoeSpeeches = [
+            "쯧, 또 신령 녀석 대신 내가 인간 상대나 하고 있어야 하나? 멀뚱히 서 있지 말고 용건이 있으면 말해.",
+            "사주나 고민 풀이가 필요한 거냐? 어려운 한자 같은 거 봐봤자 네가 알리 없으니 내가 알아듣기 쉽게 말해주지.",
+            "신령님은 능력이 부족해서 이런 일은 다 내 차례다. 하여간 손이 많이 가는 신령이라니까...",
+            "네 생년월일이든 고민이든 숨기지 말고 써라. 거짓말을 하면 여우불 맛을 보여줄 테니까.",
+            "내가 무서운 거냐? 걱정 마라, 신사의 사자로서 사주 분석이나 고민 해결은 확실하게 해주마."
         ];
 
-        // 메뉴 추천 함수
-        function recommendMenu() {
-            const resultBox = document.getElementById('result-box');
-            
-            // 효과를 위해 잠시 '고민 중...' 텍스트 표시
-            resultBox.style.color = "#7f8c8d";
-            resultBox.innerText = "메뉴 고르는 중...";
-            
-            // 0.5초 뒤에 결과 보여주기
-            setTimeout(() => {
-                const randomIndex = Math.floor(Math.random() * menuList.length);
-                const selectedMenu = menuList[randomIndex];
-                
-                resultBox.style.color = "#e74c3c";
-                resultBox.innerText = selectedMenu;
-            }, 500); // 500ms(0.5초) 지연
+        let currentSpeechIdx = 0;
+        function rotateTomoeSpeech() {
+            currentSpeechIdx = (currentSpeechIdx + 1) % tomoeSpeeches.length;
+            document.getElementById('tomoeSpeech').innerText = `"${tomoeSpeeches[currentSpeechIdx]}"`;
         }
-    </script>
 
+        // --- 2. Canvas Particle Animation (Foxfire & Cherry Blossoms) ---
+        const canvas = document.getElementById('fxCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            for(let i=0; i<45; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 3.5 + 1.5,
+                    speedY: Math.random() * 0.8 + 0.3,
+                    speedX: (Math.random() - 0.5) * 0.5,
+                    type: Math.random() > 0.4 ? 'foxfire' : 'sakura',
+                    alpha: Math.random() * 0.7 + 0.3
+                });
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                if(p.type === 'foxfire') {
+                    ctx.fillStyle = '#00f0ff';
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = '#00f0ff';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = '#f472b6';
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = '#f472b6';
+                    ctx.beginPath();
+                    ctx.ellipse(p.x, p.y, p.size * 1.5, p.size, Math.PI/4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+
+                p.y -= p.speedY * 0.6;
+                p.x += p.speedX;
+
+                if(p.y < -10) {
+                    p.y = height + 10;
+                    p.x = Math.random() * width;
+                }
+            });
+            requestAnimationFrame(drawParticles);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        drawParticles();
+
+        // --- 3. Tab System Navigation ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // --- 4. Celestial Stem & Earthly Branch Data ---
+        const stems = ['갑(甲)', '을(乙)', '병(丙)', '정(丁)', '무(戊)', '기(己)', '경(庚)', '신(辛)', '임(壬)', '계(癸)'];
+        const branches = ['자(子)', '축(丑)', '인(寅)', '묘(卯)', '진(辰)', '사(巳)', '오(午)', '미(未)', '신(申)', '유(酉)', '술(戌)', '해(亥)'];
+        const elementsMap = {
+            '갑(甲)': '木(나무)', '을(乙)': '木(나무)',
+            '병(丙)': '火(불)', '정(丁)': '火(불)',
+            '무(戊)': '土(흙)', '기(己)': '土(흙)',
+            '경(庚)': '金(쇠)', '신(辛)': '金(쇠)',
+            '임(壬)': '水(물)', '계(癸)': '水(물)',
+            '자(子)': '水(물)', '축(丑)': '土(흙)', '인(寅)': '木(나무)', '묘(卯)': '木(나무)',
+            '진(辰)': '土(흙)', '사(巳)': '火(불)', '오(午)': '火(불)', '미(未)': '土(흙)',
+            '신(申)': '金(쇠)', '유(酉)': '金(쇠)', '술(戌)': '土(흙)', '해(亥)': '水(물)'
+        };
+
+        // --- 5. Saju Calculation Engine ---
+        function calculateSaju(e) {
+            e.preventDefault();
+            const name = document.getElementById('sajuName').value;
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const birth = new Date(document.getElementById('sajuBirth').value);
+            const calendar = document.getElementById('sajuCalendar').value;
+            const timeVal = document.getElementById('sajuTime').value;
+            const topic = document.getElementById('sajuTopic').value;
+
+            document.getElementById('sajuLoading').style.display = 'block';
+            document.getElementById('sajuResult').style.display = 'none';
+
+            setTimeout(() => {
+                const year = birth.getFullYear();
+                const month = birth.getMonth() + 1;
+                const day = birth.getDate();
+
+                // Pillars Logic
+                const yearStem = stems[(year - 4) % 10];
+                const yearBranch = branches[(year - 4) % 12];
+                const monthStem = stems[(month + 2) % 10];
+                const monthBranch = branches[(month + 1) % 12];
+                const dayStem = stems[(day + 5) % 10];
+                const dayBranch = branches[(day + 3) % 12];
+
+                let isUnknownTime = timeVal === 'unknown';
+                let timeStem = '', timeBranch = '';
+
+                if(!isUnknownTime) {
+                    const idx = parseInt(timeVal);
+                    timeBranch = branches[idx];
+                    timeStem = stems[(idx + day.toString().charCodeAt(0)) % 10];
+                }
+
+                // Element Balance Calculation
+                let counts = { '木(나무)': 0, '火(불)': 0, '土(흙)': 0, '金(쇠)': 0, '水(물)': 0 };
+                let pillarList = [yearStem, yearBranch, monthStem, monthBranch, dayStem, dayBranch];
+                if(!isUnknownTime) pillarList.push(timeStem, timeBranch);
+
+                pillarList.forEach(item => {
+                    let el = elementsMap[item];
+                    if(el && counts[el] !== undefined) counts[el]++;
+                });
+
+                // Render UI
+                document.getElementById('resName').innerText = name;
+                
+                // Render Pillars
+                let pContainer = document.getElementById('pillarsContainer');
+                pContainer.innerHTML = `
+                    <div class="pillar-card"><div class="pillar-head">년주 (태어난 해)</div><div class="pillar-body">${yearStem}<br>${yearBranch}</div></div>
+                    <div class="pillar-card"><div class="pillar-head">월주 (태어난 달)</div><div class="pillar-body">${monthStem}<br>${monthBranch}</div></div>
+                    <div class="pillar-card"><div class="pillar-head">일주 (태어난 날)</div><div class="pillar-body">${dayStem}<br>${dayBranch}</div></div>
+                    ${!isUnknownTime ? `<div class="pillar-card"><div class="pillar-head">시주 (태어난 시)</div><div class="pillar-body">${timeStem}<br>${timeBranch}</div></div>` : `<div class="pillar-card"><div class="pillar-head">시주 (태어난 시)</div><div class="pillar-body" style="font-size:0.9rem; color:#94a3b8;">미상<br>(삼주풀이)</div></div>`}
+                `;
+
+                // Render Element Bars
+                let eContainer = document.getElementById('fiveElementsContainer');
+                eContainer.innerHTML = '';
+                for(let [k, v] of Object.entries(counts)) {
+                    eContainer.innerHTML += `<div class="element-bar"><div style="color:var(--gold-accent); font-weight:bold;">${k}</div><div>${v}개</div></div>`;
+                }
+
+                // Generate Extremely Rich Tomoe Explanation
+                let dominantEl = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                let weakEl = Object.keys(counts).reduce((a,b) => counts[a] < counts[b] ? a : b);
+
+                document.getElementById('sajuDetailCards').innerHTML = `
+                    <div class="detail-card">
+                        <h4>📊 1. 내 타고난 오행 기운 분석 (토모에의 한마디)</h4>
+                        <p>"쯧, 잘 들어라. 너는 <strong>${dominantEl}</strong>의 기운이 가장 강하고, 상대적으로 <strong>${weakEl}</strong>의 기운이 부족하다. ${isUnknownTime ? '태어난 시를 몰라 3주(6자)로 풀이했지만, 네 기운의 바탕은 아주 명확하게 보이는군.' : '네 개의 기둥이 딱 갖춰져 있으니 기운의 흐름이 명확하다.'}"</p>
+                        <p style="margin-top:8px; color:#cbd5e1;">${getElMeaning(dominantEl)}</p>
+                    </div>
+
+                    <div class="detail-card">
+                        <h4>🎭 2. 네 성격의 본질과 장단점</h4>
+                        <p>${getPersonalityDetail(dominantEl, name)}</p>
+                    </div>
+
+                    <div class="detail-card">
+                        <h4>🔮 3. 선택한 [${topic}] 깊이 풀어보기</h4>
+                        <p>${getTopicAnalysis(topic, dominantEl, name)}</p>
+                    </div>
+
+                    <div class="detail-card">
+                        <h4>🦊 4. 토모에의 여우불 개운(행운) 처방전</h4>
+                        <p>${getFoxfireRemedy(weakEl)}</p>
+                    </div>
+                `;
+
+                document.getElementById('sajuLoading').style.display = 'none';
+                document.getElementById('sajuResult').style.display = 'block';
+            }, 1200);
+        }
+
+        // Helper text generators for Saju
+        function getElMeaning(el) {
+            if(el.includes('木')) return '나무(木) 기운이 넘쳐 추진력과 곧은 인품이 느껴지지만, 때로는 고집이 세고 타협을 싫어해 스스로 피곤해지는 성향이 있다.';
+            if(el.includes('火')) return '불(火) 기운이 강해 솔직하고 정열적이며 행동이 빠르지만, 성질이 급하고 쉽게 달아올랐다 식는 조급함에 주의해야 한다.';
+            if(el.includes('土')) return '흙(土) 기운이 깊어 포용력이 넓고 신용이 두터우나, 너무 생각이 많아 결단을 내리지 못하고 주저하는 경향이 있다.';
+            if(el.includes('金')) return '쇠(金) 기운이 명확해 결단력이 있고 의리가 넘치지만, 냉정함과 예리한 말솜씨로 타인에게 상처를 주기 쉽다.';
+            return '물(水) 기운이 융통성 있고 지혜로우며 유연함을 지녔으나, 때로는 속마음을 알기 힘들고 불안감을 자주 느낄 수 있다.';
+        }
+
+        function getPersonalityDetail(el, name) {
+            return `"${name}, 너는 겉으로는 조용해 보여도 속에는 강한 뚝심이 있다. 사람들이 너를 쉽게 보고 함부로 대하면 나중에 꼭 큰코다치게 만들 타입이지. 남 돕는 건 잘하면서 정작 네 자기 실속을 차리는 데는 능숙하지 않다. 쯧, 신령 녀석과 비슷한 구석이 있군. 이제부터라도 네 몫을 먼저 챙기는 법을 배워라."`;
+        }
+
+        function getTopicAnalysis(topic, el, name) {
+            return `"${topic}에 대해 궁금하다고 했지? 네 기운을 보니 조만간 큰 변화의 바람이 불어올 것이다. ${topic}과 관련해서는 네 고집대로 밀어붙이기보다는 주변의 시의적절한 조언을 살짝 받아들이는 편이 훨씬 이롭다. 너무 조급하게 결과를 내려고 애쓰지 마라. 미카게 신사의 여우불이 좋은 인연과 기운을 당겨줄 테니까."`;
+        }
+
+        function getFoxfireRemedy(weakEl) {
+            let item = '';
+            if(weakEl.includes('木')) item = '푸른색 계열의 소지품이나 자그마한 식물을 곁에 두어라.';
+            else if(weakEl.includes('火')) item = '붉은색 액세서리나 따뜻한 차를 자주 마셔 열기를 채워라.';
+            else if(weakEl.includes('土')) item = '황토색, 노란색 소지품이나 도자기 재질의 물건을 지녀라.';
+            else if(weakEl.includes('金')) item = '흰색 옷이나 금속 시계, 반지 같은 장신구를 착용해라.';
+            else item = '검은색 의상이나 시원한 음료, 물과 가까운 곳에서 휴식을 취해라.';
+            return `너에게 지금 부족한 건 <strong>${weakEl}</strong>의 기운이다. 이 기운을 채우려면 <strong>${item}</strong> 내 여우불 기운을 조금 불어넣어 두었으니 잊지 마라.`;
+        }
+
+        // --- 6. Concern Counseling Engine ---
+        function handleCounsel(e) {
+            e.preventDefault();
+            const name = document.getElementById('counselName').value;
+            const text = document.getElementById('counselText').value;
+
+            document.getElementById('counselLoading').style.display = 'block';
+            document.getElementById('counselResult').style.display = 'none';
+
+            setTimeout(() => {
+                let solution = `
+                    <p style="margin-bottom:12px;">"어이 <strong>${name}</strong>, 네 고민은 잘 들었다. <em>'${text}'</em> 라고?"</p>
+                    <p style="margin-bottom:12px; color:var(--foxfire-blue);"><strong>[토모에의 팩트 조언]</strong><br>
+                    "솔직히 말해 네가 머뭇거리며 제자리를 돌고 있을 뿐이다. 스스로 상황을 바꿀 용기도 내지 않으면서 고민만 붙잡고 있으면 뭐가 달라지냐? 쯧, 답답하긴."</p>
+                    <p style="margin-bottom:12px; color:#e2e8f0;"><strong>[현실적 솔루션 & 여우불 비책]</strong><br>
+                    "당장 오늘 밤부터 그 고민거리와 한 걸음 떨어져서 객관적으로 봐라. 네가 당장 할 수 있는 작은 일부터 하나씩 해결해 나가란 말이다. 정 힘들면 미카게 신사 방향을 보고 숨을 크게 세 번 쉬어라. 내 여우불로 잡스러운 근심은 태워줄 테니."</p>
+                    <p style="color:var(--gold-accent); font-size:0.9rem;">"알겠냐? 신령 녀석처럼 질질 짜지 말고 힘내라."</p>
+                `;
+                
+                document.getElementById('counselOutput').innerHTML = solution;
+                document.getElementById('counselLoading').style.display = 'none';
+                document.getElementById('counselResult').style.display = 'block';
+            }, 1000);
+        }
+
+        // --- 7. Omikuji Drawing ---
+        const omikujiData = [
+            { title: '⛩️ 대길 (大吉)', color: '#fbbf24', text: '운수가 대통하구나! 네가 마음먹은 일들이 여우불처럼 화려하게 피어날 것이다. 하고 싶었던 일이 있다면 망설이지 말고 당장 시작해라.' },
+            { title: '🌸 중길 (中吉)', color: '#f472b6', text: '좋은 기운이 솔솔 불어오는 날이다. 생각지도 못했던 뜻밖의 기쁜 소식이나 정겨운 인연이 찾아올 테니 기대해봐도 좋다.' },
+            { title: '🌙 소길 (小吉)', color: '#a855f7', text: '평온하고 조용한 하루가 될 것이다. 무리하게 일을 벌이기보다는 차 한 잔 마시며 마음을 정돈하기에 딱 좋은 날이다.' },
+            { title: '🍃 길 (吉)', color: '#38bdf8', text: '소소하지만 확실한 기쁨이 기다리고 있다. 정직하게 노력한 만큼 확실한 결실이 맺어질 테니 요행을 바라지 마라.' },
+            { title: '🔥 액막이 흉 (凶 - 토모에가 퇴치함)', color: '#ef4444', text: '쯧, 나쁜 액운이 살짝 꼬였었지만 걱정 마라. 내가 내 여우불로 그 불길한 기운을 전부 태워버렸으니 안심하고 다니도록.' }
+        ];
+
+        function drawOmikuji() {
+            const random = omikujiData[Math.floor(Math.random() * omikujiData.length)];
+            const res = document.getElementById('omikujiResult');
+            res.style.display = 'block';
+            res.innerHTML = `
+                <div style="text-align:center; padding:15px; border:2px dashed ${random.color}; border-radius:12px; background:rgba(0,0,0,0.4);">
+                    <h2 style="color:${random.color}; margin-bottom:10px;">${random.title}</h2>
+                    <p style="line-height:1.7; font-size:1.05rem;">"${random.text}"</p>
+                    <p style="margin-top:15px; color:var(--text-muted); font-size:0.85rem;">- 들여우 사자 토모에 -</p>
+                </div>
+            `;
+        }
+
+        // --- 8. Wish Ema Board ---
+        const initialEmas = [
+            { name: '나나미', text: '토모에가 나한테 화 좀 적게 내게 해주세요!' },
+            { name: '쿠라마', text: '다음 콘서트도 대성공하기를.' },
+            { name: '익명의 인간', text: '올해 원하는 시험 꼭 합격하게 해주세요!' }
+        ];
+
+        function renderEmas() {
+            const list = document.getElementById('emaList');
+            list.innerHTML = '';
+            initialEmas.forEach(e => {
+                list.innerHTML += `
+                    <div class="ema-item">
+                        <span class="ema-text">" ${e.text} "</span>
+                        <span class="ema-author">- ${e.name} -</span>
+                    </div>
+                `;
+            });
+        }
+
+        function addEma(e) {
+            e.preventDefault();
+            const name = document.getElementById('emaName').value;
+            const text = document.getElementById('emaText').value;
+
+            initialEmas.unshift({ name, text });
+            renderEmas();
+
+            document.getElementById('emaName').value = '';
+            document.getElementById('emaText').value = '';
+            alert('토모에: "네 소원 나무판을 신사에 걸어두었다. 잊지 말고 노력이나 해라."');
+        }
+
+        // Initialize Ema list on load
+        renderEmas();
+    </script>
 </body>
 </html>
